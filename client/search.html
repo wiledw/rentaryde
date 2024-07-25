@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="./search.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentARyde</title>
+</head>
+<body>
+    <nav>
+        <div id="nav">
+            <a href="menu.html" class="nav-item">Rent-A-Ryde</a>
+            <a href="views.html" class="nav-item">VIEWS</a>
+            <a href="search.html" class="nav-item">SEARCH</a>
+            <a href="action.html" class="nav-item">ACTIONS</a>
+        </div>
+    </nav>  
+    <div<<br> <br> <br> <br> <br> <br></div>
+   
+   <div class="container">
+        <div id="tableSelectorContainer">
+            <label id="tableLabel" for="tableSelector">Select Table:</label>
+            <select id="tableSelector">
+                <option value="">Click me!</option>
+                <option value="customer">Customer</option>
+                <option value="employee">Employee</option>
+                <option value="warehouse">Warehouse</option>
+                <option value="vehicle">Vehicle</option>
+                <option value="pay_method">Payment Method</option>
+                <option value="rental">Rental</option>
+            </select>
+            <label for="searchRecord">Record ID:</label>
+            <input type="text" id="searchRecord" name="searchRecord" />
+            <button type="submit" class="button-12" name="search" onclick="searchRecord()">Search</button>
+        </div>
+    </div>
+
+    <div id="tableContainer"></div>
+    <div id="apiResponseContainer">
+        <h3 id="labelResponse">Response:</h3>
+        <textarea id="apiResponse" rows="5" cols="50" readonly></textarea>
+    </div>
+    
+    <script>
+        const moonUsername = 'username'
+
+        function searchRecord() {
+            const selectedTable = document.getElementById('tableSelector').value;
+            const recordId = document.getElementById('searchRecord').value;
+            lookUp(selectedTable, recordId);
+        }
+
+        function lookUp(tableName, recordId) {
+            var header = new Headers({
+                'Authorization': `Basic ${btoa(moonUsername)}`
+            });
+
+            fetch(`http://moon.scs.ryerson.ca:3000/searchRecord/${tableName}/${recordId}`, { headers: header })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove existing tables
+                    const existingTables = document.querySelectorAll('table');
+                    existingTables.forEach(table => table.remove());
+
+                    // Create a table dynamically
+                    const table = document.createElement('table');
+                    table.border = '2';
+
+                    // Create header row
+                    const headerList = []
+                    const headerRow = table.insertRow(0);
+                    data.headers.forEach(headerText => {
+                        const th = document.createElement('th');
+                        th.appendChild(document.createTextNode(headerText));
+                        headerList.push(headerText);
+                        headerRow.appendChild(th);
+                    });
+                    //Add delete header
+                    const th = document.createElement('th');
+                    th.appendChild(document.createTextNode('ACTION'));
+                    headerRow.appendChild(th);
+
+                    // Create first input row
+                    const inputRow = table.insertRow(1); // New input row
+                    inputRow.className = 'input-row'; 
+                    data.headers.forEach(() => {
+                        const inputCell = inputRow.insertCell();
+                        const inputElement = document.createElement('input');
+                        inputElement.type = 'text';
+                        inputCell.appendChild(inputElement);
+                    });
+                    // Add add/update buttons to the action column
+                    const actionCell = inputRow.insertCell();
+                
+                    const updateButton = document.createElement('button');
+                    updateButton.innerText = 'Update';
+                    updateButton.className = 'updateButton';
+                    updateButton.addEventListener('click', () => updateRow(tableName, headerList, getInputValues(inputRow.cells)));
+
+                    actionCell.appendChild(updateButton);
+
+                    // Create data rows
+                    data.rows.forEach(rowData => {
+                        const row = table.insertRow();
+                        rowData.forEach((cellData, index) => {
+                            const cell = row.insertCell();
+                            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(cellData)) {
+                                const formattedDate = cellData.substring(0, 10);
+                                cell.appendChild(document.createTextNode(formattedDate));
+                            } else {
+                                cell.appendChild(document.createTextNode(cellData));
+                            }
+                            
+                        });
+                        //delete button
+                        const deleteCell = row.insertCell();
+                        const deleteButton = document.createElement('button');
+                        deleteButton.innerText = 'Delete';
+                        deleteButton.className = 'deleteButton'; 
+                        deleteButton.addEventListener('click', () => deleteRow(tableName, rowData[0]));
+                        deleteCell.appendChild(deleteButton);
+                    });
+    
+                    const tableContainer = document.getElementById('tableContainer');
+                    tableContainer.appendChild(table);
+                    tableContainer.style.opacity = 1;
+                    document.getElementById('apiResponseContainer').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error(`Error fetching ${tableName} views:`, error);
+                    const responseTextArea = document.getElementById('apiResponse');
+                    responseTextArea.value = `Error fetching table ${tableName}`;
+
+                    // Show the response container on error
+                    document.getElementById('apiResponseContainer').style.display = 'flex';
+                });
+        };
+
+    
+        function getInputValues(cells) {
+            return Array.from(cells).map(cell => cell.firstChild.value);
+        }
+
+
+        function deleteRow(tableName, id) {
+            var header = new Headers({
+                'Authorization': `Basic ${btoa(moonUsername)}`
+            });
+
+            fetch(`http://moon.scs.ryerson.ca:3000/deleteRecord/${tableName}/${id}`, {
+                method: 'DELETE',
+                headers: header,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle success, if needed
+                    console.log('Row deleted successfully:', data);
+                    // Refresh the table after deletion
+                    searchRecord();
+                })
+                .catch(error => {
+                    console.error('Error deleting row:', error);
+                });
+        }
+        function updateRow(tableName, headerList, dataBody) {
+            console.log(tableName);
+            console.log(headerList);
+            const recordId = dataBody[0];
+
+            const formattedData = [];
+            for (let i = 0; i < dataBody.length - 1; i++) {
+                if (/^[0-9]{3}$/.test(dataBody[i])) {
+                    formattedData.push(dataBody[i]);
+                } else if (/^\d+$/.test(dataBody[i])) {
+                    formattedData.push(formatAsInteger(dataBody[i]));
+                } else {
+                    formattedData.push(dataBody[i]);
+                }
+            }
+            
+            const formattedBody = formattedData.map((value, index) => {
+                const formattedValue = typeof value === 'string' && isValidDateString(value)
+                    ? `TO_DATE('${value}', 'YYYY-MM-DD')`
+                    : typeof value === 'string'
+                        ? value.trim()
+                        : value;
+
+                return formattedValue;
+            });
+            console.log(formattedBody);
+
+            const finalBody = {}
+            for (let i = 1; i < headerList.length; i++) {
+                if (formattedBody[i] !== ''){
+                    finalBody[headerList[i]] = formattedBody[i]
+                }
+            }
+            var header = new Headers({
+                'Authorization': `Basic ${btoa(moonUsername)}`,
+                'Content-Type': 'application/json'
+            });
+
+            fetch(`http://moon.scs.ryerson.ca:3000/updateRecord/${tableName}/${recordId}`, {
+                method: 'PATCH',
+                headers: header,
+                body: JSON.stringify(finalBody)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle success, if needed
+                    console.log('Row updated successfully:', data);
+                    // Refresh the table after deletion
+                    searchRecord();
+                })
+                .catch(error => {
+                    console.error('Error updating row:', error);
+                });
+        }
+
+        function formatAsInteger(value) {
+            return typeof value === 'string' && value.includes('-') ? parseFloat(value) : parseInt(value, 10);
+        }
+        function isValidDateString(dateString) {
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            return dateRegex.test(dateString);
+        }
+    </script>
+
+
+ 
+    <footer id="footer">
+        <div class="container row" id="social-container">
+            <a>Wiliam</a>
+            <span>•</span>
+            <a>Russell</a>
+            <span>•</span>
+            <a>Davin</a>
+        </div>
+        <div>
+            <p id="copyright">Copyright@ RentARyde</p>
+        </div>
+    </footer>
+</body>
+</html>

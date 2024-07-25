@@ -1,0 +1,235 @@
+body{
+    background-color: beige;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Set the minimum height of the body to 100% of the viewport height */
+    margin: 0;
+}
+
+/**Navbar**/
+#nav {
+	left: 0%;
+	right: 0%;
+    top:0%;
+	background-color: white;
+	position: fixed;
+	display: block;
+	box-shadow: 2px 2px 5px #aaaaaa;
+	z-index: 1;
+
+}
+
+.nav-item:first-child {
+	float: left;
+	font-weight: 500;
+}
+
+.nav-item {
+	color: #2a2d34;
+	float: right;
+	display: block;
+	text-align: center;
+	padding: 22px;
+	text-decoration: none;
+	font-size: 17px;
+	font-weight: 500;
+}
+
+.nav-item:hover {
+	color: #2a2d34;
+	transition: 0.5s;
+}
+
+
+.nav-item:hover:after {
+    transform: scaleX(1);
+}
+
+.nav-item::after {
+    display:block;
+    content: '';
+    border-bottom: solid 3px rgb(135, 164, 230);  
+    transform: scaleX(0);  
+    transition: 350ms ease-in-out;
+    transform-origin: 0% 50%;
+}
+
+
+
+
+
+#footer {
+    margin-top: auto; 
+	padding-top:20px;
+	text-align: center;
+	background-color: #F0F0F0;
+}
+
+#social-container * {
+	padding: 6px;
+	margin-bottom: 6px;
+}
+
+#social-container a {
+	color: #575757;
+	transition: .4s;
+}
+
+#social-container a:hover {
+	color: #8d8d8d;
+}
+
+#copyright {
+	color: #8d8d8d;
+	font-size:14px;
+}
+
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/** dropdown menu**/
+
+#tableSelectorContainer {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px #aaaaaa;
+    padding: 20px;
+    text-align: center;
+    width: 18%;
+}
+
+
+#tableLabel {
+	font-size: 18px;
+	margin-right: 10px;
+	color: #333;
+}
+
+#tableSelector {
+	padding: 10px;
+	font-size: 16px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-right: 10px;
+}
+
+#tableSelector:hover {
+	border-color: #4CAF50;
+}
+
+#tableSelector:focus {
+	outline: none;
+	border-color: #4CAF50;
+}
+
+#tableSelector option {
+	background-color: #f9f9f9;
+}
+
+#tableContainer {
+	overflow-x: scroll; 
+	display: flex;
+	justify-content: center;
+	margin-top: 0px; 
+	opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+table {
+	border-collapse: collapse;
+	width: 80%;
+	margin: 20px; 
+}
+
+th, td {
+	padding: 12px;
+	text-align: left;
+	border: 1px solid #ddd;
+}
+
+th {
+	background-color: #4CAF50; 
+	color: white;
+}
+
+tr:nth-child(even) {
+	background-color: #f2f2f2; 
+}
+
+
+#apiResponseContainer {
+    display: none;
+    flex-direction: column;
+	padding-top: 15px;
+	padding-bottom: 30px;
+}
+
+#labelResponse {
+    margin-bottom: 5px;
+    margin: auto;
+    padding-bottom: 10px;
+}
+
+#apiResponse {
+    width: 80%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 0px;
+    font-family: 'Arial', sans-serif;
+    resize: vertical; 
+    margin: 0 auto;
+    display: block;
+}
+
+#apiResponse:focus {
+    outline: none;
+    border-color: #007BFF; 
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+}
+
+button.deleteButton {
+	background-color: #dc3545; /* Bootstrap's danger color */
+	color: #fff;
+	padding: 5px 10px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+button.deleteButton:hover {
+	background-color: #bd2130; /* Darker shade on hover */
+}
+
+/**input row*/
+table tr.input-row td input {
+	width: 80px; /* Adjust the width as needed */
+	box-sizing: border-box;
+}
+
+/* Style to make the table responsive */
+table {
+	width: 100%;
+	overflow-x: auto;
+}
+
+.addButton,
+    .updateButton {
+        padding: 8px 12px;
+        cursor: pointer;
+        background-color: #67d742; /* Green */
+        color: white;
+        border: none;
+        border-radius: 4px;
+		margin-left: 5px;
+    }
+
+    /* Change button color on hover */
+    .addButton:hover,
+    .updateButton:hover {
+        background-color: #67d742; /* Darker green */
+    }
